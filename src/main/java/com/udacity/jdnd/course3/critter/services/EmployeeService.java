@@ -9,6 +9,7 @@ import com.udacity.jdnd.course3.critter.user.EmployeeRequestDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@Transactional
 public class EmployeeService {
 
     @Autowired
@@ -25,23 +27,16 @@ public class EmployeeService {
     ScheduleService scheduleService;
 
 
-    public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee();
-        BeanUtils.copyProperties(employeeDTO, employee);
-        EmployeeDTO employeeDTO1 = new EmployeeDTO();
-        BeanUtils.copyProperties(employeeRepository.save(employee), employeeDTO1);
-        return employeeDTO1;
+    public Employee saveEmployee(Employee employee) {
+        return employeeRepository.save(employee);
     }
 
     public Employee getEmployee(Long id) {
         return employeeRepository.findById(id).get();
     }
 
-    public EmployeeDTO getEmployeeDto(Long id) {
-        Employee employee = employeeRepository.findById(id).get();
-        EmployeeDTO employeeDTO = new EmployeeDTO();
-        BeanUtils.copyProperties(employee, employeeDTO);
-        return employeeDTO;
+    public Employee getEmployeeDto(Long id) {
+        return employeeRepository.findById(id).get();
     }
 
     public void setAvailability(Set<DayOfWeek> days, Long id) {
@@ -51,18 +46,15 @@ public class EmployeeService {
 
     }
 
-    public List<EmployeeDTO> findEmployeesForService(EmployeeRequestDTO employeeRequestDTO) {
-        List<Employee> employees = employeeRepository.findAll();
-        List<EmployeeDTO> employeeDTOS = new ArrayList<>();
-        for (Employee employee : employees) {
+    public List<Employee> findEmployeesForService(EmployeeRequestDTO employeeRequestDTO) {
+        List<Employee> employees = new ArrayList<>();
+        for (Employee employee : employeeRepository.findAll()) {
             if (employee.getSkills().containsAll(employeeRequestDTO.getSkills()) && scheduleService.isEmployeeAvailable(employee, employeeRequestDTO.getDate())) {
-                EmployeeDTO employeeDTO = new EmployeeDTO();
-                BeanUtils.copyProperties(employee, employeeDTO);
-                employeeDTOS.add(employeeDTO);
+                employees.add(employee);
             }
         }
 
-        return employeeDTOS;
+        return employees;
     }
 
 }

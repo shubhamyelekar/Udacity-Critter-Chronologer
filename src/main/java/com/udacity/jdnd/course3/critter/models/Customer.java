@@ -1,6 +1,7 @@
 package com.udacity.jdnd.course3.critter.models;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -51,6 +52,13 @@ public class Customer {
 
     public void setPets(List<Pet> pets) {
         this.pets = pets;
+    }
+
+    public void addPet(Pet pet) {
+        if (pets == null) {
+            pets = new ArrayList< >();
+        }
+        pets.add(pet);
     }
 
     @OneToMany(mappedBy = "customer")
